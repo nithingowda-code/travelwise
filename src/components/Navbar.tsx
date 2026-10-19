@@ -16,8 +16,8 @@ import {
 import { Language, TRANSLATIONS } from '../utils/translations';
 
 interface NavbarProps {
-  activeTab: 'explore' | 'itinerary' | 'budget' | 'checklists';
-  setActiveTab: (tab: 'explore' | 'itinerary' | 'budget' | 'checklists') => void;
+  activeTab: 'explore' | 'itinerary' | 'routes' | 'budget' | 'checklists';
+  setActiveTab: (tab: 'explore' | 'itinerary' | 'routes' | 'budget' | 'checklists') => void;
   onOpenWizard: () => void;
   onOpenEmergencyMode: () => void;
   lang: Language;
@@ -91,6 +91,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               {hasPlan && (
                 <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block ml-1.5 animate-pulse" />
               )}
+            </button>
+
+            <button
+              onClick={() => setActiveTab('routes')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
+                activeTab === 'routes'
+                  ? 'bg-teal-600/30 text-teal-300 border border-teal-500/40 shadow-sm'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <span>🗺️ {lang === 'hi' ? 'मार्ग एवं गूगल मैप्स' : 'Routes & Google Maps'}</span>
             </button>
 
             <button
@@ -191,6 +202,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold text-slate-200 hover:bg-slate-800"
             >
               {lang === 'hi' ? 'स्मार्ट यात्रा कार्यक्रम' : 'Smart Itinerary'}
+            </button>
+            <button
+              onClick={() => { setActiveTab('routes'); setMobileMenuOpen(false); }}
+              className="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold text-slate-200 hover:bg-slate-800"
+            >
+              {lang === 'hi' ? '🗺️ मार्ग एवं गूगल मैप्स' : '🗺️ Routes & Google Maps'}
             </button>
             <button
               onClick={() => { setActiveTab('budget'); setMobileMenuOpen(false); }}

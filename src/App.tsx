@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   TripWizardPreferences, 
-  GeneratedYatraPlan 
+  GeneratedYatraPlan,
+  YatraDestination
 } from './types/yatra';
 import { generateYatraItinerary, swapTimeSlotActivity } from './utils/itineraryEngine';
 import { Language, TRANSLATIONS } from './utils/translations';
@@ -9,9 +10,12 @@ import { Navbar } from './components/Navbar';
 import { YatraHero } from './components/YatraHero';
 import { TripWizardModal } from './components/TripWizardModal';
 import { ItineraryView } from './components/ItineraryView';
+import { RouteMapHub } from './components/RouteMapHub';
 import { BudgetEstimator } from './components/BudgetEstimator';
 import { ChecklistsView } from './components/ChecklistsView';
 import { EmergencyModeModal } from './components/EmergencyModeModal';
+import { PhotoModal } from './components/PhotoModal';
+import { YATRA_DESTINATIONS } from './data/yatraDestinations';
 import { IndiaRegion, ALL_INDIA_REGIONS } from './data/indiaRegions';
 import { 
   Sparkles, 
@@ -25,12 +29,13 @@ import {
   Printer, 
   Calendar,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Route
 } from 'lucide-react';
 
 export function App() {
   // Navigation & Theme
-  const [activeTab, setActiveTab] = useState<'explore' | 'itinerary' | 'budget' | 'checklists'>('explore');
+  const [activeTab, setActiveTab] = useState<'explore' | 'itinerary' | 'routes' | 'budget' | 'checklists'>('explore');
   const [lang, setLang] = useState<Language>('en');
   const [darkMode, setDarkMode] = useState<boolean>(false);
 
@@ -39,6 +44,22 @@ export function App() {
   const [wizardInitialState, setWizardInitialState] = useState<string | undefined>(undefined);
   const [emergencyOpen, setEmergencyOpen] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Photo Lightbox Modal
+  const [photoModalData, setPhotoModalData] = useState<{
+    isOpen: boolean;
+    photoUrl: string;
+    title: string;
+    location: string;
+    credit: string;
+    coordinates?: [number, number];
+  }>({
+    isOpen: false,
+    photoUrl: '',
+    title: '',
+    location: '',
+    credit: '',
+  });
 
   // Current Yatra Plan (Pre-initialized with an exemplary 4-day Karnataka journey)
   const [currentPlan, setCurrentPlan] = useState<GeneratedYatraPlan>(() => {
@@ -97,6 +118,17 @@ export function App() {
     const updated = swapTimeSlotActivity(currentPlan, dayNumber, slotIndex);
     setCurrentPlan(updated);
     showToast(`✓ Swapped activity for bad weather backup on Day ${dayNumber}!`);
+  };
+
+  const handleOpenPhoto = (dest: YatraDestination) => {
+    setPhotoModalData({
+      isOpen: true,
+      photoUrl: dest.image,
+      title: dest.name,
+      location: `${dest.cityOrDistrict}, ${dest.stateName}`,
+      credit: dest.imageCredit,
+      coordinates: dest.coordinates,
+    });
   };
 
   const handlePrint = () => {
@@ -161,7 +193,15 @@ export function App() {
                 <span>Active Journey: {currentPlan.title}</span>
               </div>
 
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => setActiveTab('routes')}
+                  className="px-3.5 py-1.5 rounded-xl bg-teal-50 dark:bg-teal-950/60 border border-teal-500/40 text-teal-800 dark:text-teal-300 text-xs font-bold flex items-center space-x-1.5 hover:bg-teal-100 transition-colors"
+                >
+                  <Route className="w-3.5 h-3.5 text-teal-600" />
+                  <span>Show Routes & Map</span>
+                </button>
+
                 <button
                   onClick={handlePrint}
                   className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold flex items-center space-x-1.5 hover:bg-slate-100 transition-colors"
@@ -191,18 +231,31 @@ export function App() {
             <ItineraryView
               plan={currentPlan}
               onSwapWeatherSlot={handleSwapWeatherSlot}
+              onOpenPhotoModal={handleOpenPhoto}
+              onViewRouteOnMap={() => setActiveTab('routes')}
             />
           </div>
         )}
 
-        {/* TAB 3: BUDGET & EXPENSE ESTIMATOR */}
+        {/* TAB 3: ROUTES & GOOGLE MAPS HUB */}
+        {activeTab === 'routes' && (
+          <div className="space-y-6">
+            <RouteMapHub
+              plan={currentPlan}
+              allDestinations={YATRA_DESTINATIONS}
+              onOpenPhotoModal={handleOpenPhoto}
+            />
+          </div>
+        )}
+
+        {/* TAB 4: BUDGET & EXPENSE ESTIMATOR */}
         {activeTab === 'budget' && (
           <div className="space-y-6">
             <BudgetEstimator plan={currentPlan} />
           </div>
         )}
 
-        {/* TAB 4: PERMITS & PACKING CHECKLISTS */}
+        {/* TAB 5: PERMITS & PACKING CHECKLISTS */}
         {activeTab === 'checklists' && (
           <div className="space-y-6">
             <ChecklistsView plan={currentPlan} />
@@ -227,6 +280,17 @@ export function App() {
         plan={currentPlan}
       />
 
+      {/* Authentic Photo Viewer Lightbox Modal */}
+      <PhotoModal
+        isOpen={photoModalData.isOpen}
+        onClose={() => setPhotoModalData(prev => ({ ...prev, isOpen: false }))}
+        photoUrl={photoModalData.photoUrl}
+        title={photoModalData.title}
+        location={photoModalData.location}
+        credit={photoModalData.credit}
+        coordinates={photoModalData.coordinates}
+      />
+
       {/* Footer */}
       <footer className="mt-20 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-10 text-xs text-slate-500 dark:text-slate-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -244,7 +308,7 @@ export function App() {
             <span>•</span>
             <span>Real-time Weather & Crowd Analytics</span>
             <span>•</span>
-            <span>IMD / Open-Meteo / NASA POWER Data</span>
+            <span>Connected to Google Maps Directions & Satellite Imagery</span>
             <span>•</span>
             <span className="text-teal-600 dark:text-teal-400 font-bold">100% Genuine Places & Verified Rates</span>
           </div>

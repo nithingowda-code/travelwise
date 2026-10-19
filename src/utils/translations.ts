@@ -40,8 +40,11 @@ export const TRANSLATIONS = {
     weatherSwap: 'Auto-Swap Bad Weather Activity',
     viewHospital: 'Emergency Hospital',
     networkSignal: 'Mobile Signal',
-    fuelAlert: 'Fuel Pump Gap',
-    atmStatus: 'Cash & ATM Availability'
+    atmStatus: 'Cash & ATM Availability',
+    routesAndMaps: 'Routes & Google Maps',
+    openInGoogleMaps: 'Open in Google Maps',
+    navigateGoogleMaps: 'Navigate with Google Maps',
+    allStopsRoute: 'Open All Stops in Google Maps'
   },
   hi: {
     appName: 'यात्राAI (YatraAI)',
@@ -82,7 +85,10 @@ export const TRANSLATIONS = {
     weatherSwap: 'खराब मौसम में इनडोर गतिविधि बदलें',
     viewHospital: 'निकटतम आपातकालीन अस्पताल',
     networkSignal: 'मोबाइल नेटवर्क',
-    fuelAlert: 'पेट्रोल पंप दूरी',
-    atmStatus: 'एटीएम एवं नकद उपलब्धता'
+    atmStatus: 'एटीएम एवं नकद उपलब्धता',
+    routesAndMaps: 'मार्ग एवं गूगल मैप्स',
+    openInGoogleMaps: 'गूगल मैप्स में खोलें',
+    navigateGoogleMaps: 'गूगल मैप्स नेविगेशन शुरू करें',
+    allStopsRoute: 'सभी पड़ावों का गूगल मैप्स रूट खोलें'
   }
 };
