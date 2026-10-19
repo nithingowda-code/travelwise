@@ -3,276 +3,226 @@ import {
   Compass, 
   MapPin, 
   CalendarDays, 
-  Bookmark, 
-  Briefcase, 
-  User, 
+  IndianRupee, 
+  ShieldAlert, 
+  Sparkles, 
+  Sun, 
+  Moon, 
+  Languages, 
   Menu, 
-  X, 
-  Radio,
-  ChevronDown
+  X,
+  FileCheck
 } from 'lucide-react';
-import { CITIES } from '../data/destinations';
+import { Language, TRANSLATIONS } from '../utils/translations';
 
 interface NavbarProps {
-  activeTab: 'explore' | 'planner' | 'saved' | 'trips';
-  setActiveTab: (tab: 'explore' | 'planner' | 'saved' | 'trips') => void;
-  selectedCity: string;
-  onSelectCity: (cityId: string) => void;
-  savedCount: number;
-  itineraryCount: number;
+  activeTab: 'explore' | 'itinerary' | 'budget' | 'checklists';
+  setActiveTab: (tab: 'explore' | 'itinerary' | 'budget' | 'checklists') => void;
+  onOpenWizard: () => void;
+  onOpenEmergencyMode: () => void;
+  lang: Language;
+  onToggleLang: () => void;
+  darkMode: boolean;
+  onToggleDarkMode: () => void;
+  hasPlan: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   activeTab,
   setActiveTab,
-  selectedCity,
-  onSelectCity,
-  savedCount,
-  itineraryCount,
+  onOpenWizard,
+  onOpenEmergencyMode,
+  lang,
+  onToggleLang,
+  darkMode,
+  onToggleDarkMode,
+  hasPlan
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-  const [cityDropdownOpen, setCityDropdownOpen] = React.useState(false);
-
-  const currentCityObj = CITIES.find((c) => c.id === selectedCity) || CITIES[0];
+  const t = TRANSLATIONS[lang];
 
   return (
-    <header className="sticky top-0 z-40 bg-[#0a192f] text-white border-b border-slate-800 shadow-lg backdrop-blur-md">
+    <header className="sticky top-0 z-40 bg-slate-950/90 text-white border-b border-slate-800 shadow-xl backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           
-          {/* Logo & City Selector */}
-          <div className="flex items-center space-x-6">
+          {/* Logo & Branding */}
+          <div className="flex items-center space-x-3">
             <button 
               onClick={() => setActiveTab('explore')}
               className="flex items-center space-x-3 text-left group"
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-teal-500 via-emerald-400 to-cyan-400 flex items-center justify-center shadow-md shadow-teal-500/20 group-hover:scale-105 transition-transform">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-teal-500 via-emerald-400 to-cyan-400 flex items-center justify-center shadow-lg shadow-teal-500/25 group-hover:scale-105 transition-transform">
                 <Compass className="w-6 h-6 text-slate-950" />
               </div>
               <div>
-                <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-100 to-teal-200 bg-clip-text text-transparent">
-                  TRAVELWISE
+                <span className="text-xl font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-teal-300 bg-clip-text text-transparent">
+                  YATRA AI
                 </span>
-                <span className="block text-[10px] tracking-widest uppercase font-semibold text-teal-400">
-                  AI Smart Tourism Planner
+                <span className="block text-[9px] tracking-widest uppercase font-extrabold text-teal-400">
+                  {lang === 'hi' ? 'अखिल भारतीय स्मार्ट यात्रा योजनाकार' : 'All-India Smart Travel Engine'}
                 </span>
               </div>
             </button>
-
-            {/* City Switcher Dropdown */}
-            <div className="relative hidden md:block">
-              <button
-                onClick={() => setCityDropdownOpen(!cityDropdownOpen)}
-                className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs font-medium text-slate-200 transition-colors"
-                title="Change Destination City"
-              >
-                <MapPin className="w-3.5 h-3.5 text-teal-400" />
-                <span>{currentCityObj.name}</span>
-                <ChevronDown className="w-3 h-3 text-slate-400" />
-              </button>
-
-              {cityDropdownOpen && (
-                <>
-                  <div 
-                    className="fixed inset-0 z-20" 
-                    onClick={() => setCityDropdownOpen(false)} 
-                  />
-                  <div className="absolute left-0 mt-2 w-56 rounded-xl bg-slate-900 border border-slate-800 shadow-2xl py-2 z-30 animate-in fade-in zoom-in-95">
-                    <div className="px-3 py-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                      Select Region
-                    </div>
-                    {CITIES.map((city) => (
-                      <button
-                        key={city.id}
-                        onClick={() => {
-                          onSelectCity(city.id);
-                          setCityDropdownOpen(false);
-                        }}
-                        className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between hover:bg-slate-800 transition-colors ${
-                          city.id === selectedCity ? 'text-teal-400 font-semibold bg-slate-800/50' : 'text-slate-300'
-                        }`}
-                      >
-                        <div>
-                          <div className="font-medium">{city.name}</div>
-                          <div className="text-[10px] text-slate-400">{city.country}</div>
-                        </div>
-                        {city.id === selectedCity && (
-                          <div className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
           </div>
 
-          {/* Center Navigation Links (Desktop) */}
+          {/* Desktop Navigation Links */}
           <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
             <button
               onClick={() => setActiveTab('explore')}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
                 activeTab === 'explore'
-                  ? 'bg-teal-500/15 text-teal-400 border border-teal-500/30 shadow-inner'
+                  ? 'bg-teal-600/30 text-teal-300 border border-teal-500/40 shadow-sm'
                   : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
               }`}
             >
-              Explore
+              {lang === 'hi' ? '36 राज्य व केंद्र शासित प्रदेश' : 'Explore 36 States & UTs'}
             </button>
 
             <button
-              onClick={() => setActiveTab('planner')}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center space-x-2 ${
-                activeTab === 'planner'
-                  ? 'bg-teal-500/15 text-teal-400 border border-teal-500/30 shadow-inner'
+              onClick={() => setActiveTab('itinerary')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all relative ${
+                activeTab === 'itinerary'
+                  ? 'bg-teal-600/30 text-teal-300 border border-teal-500/40 shadow-sm'
                   : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
               }`}
             >
-              <CalendarDays className="w-4 h-4" />
-              <span>Smart Planner</span>
-              {itineraryCount > 0 && (
-                <span className="w-5 h-5 rounded-full bg-teal-500 text-slate-950 font-bold text-[11px] flex items-center justify-center">
-                  {itineraryCount}
-                </span>
+              <span>{lang === 'hi' ? 'स्मार्ट यात्रा कार्यक्रम' : 'Smart Itinerary'}</span>
+              {hasPlan && (
+                <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block ml-1.5 animate-pulse" />
               )}
             </button>
 
             <button
-              onClick={() => setActiveTab('saved')}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center space-x-2 ${
-                activeTab === 'saved'
-                  ? 'bg-teal-500/15 text-teal-400 border border-teal-500/30 shadow-inner'
+              onClick={() => setActiveTab('budget')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                activeTab === 'budget'
+                  ? 'bg-teal-600/30 text-teal-300 border border-teal-500/40 shadow-sm'
                   : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
               }`}
             >
-              <Bookmark className="w-4 h-4" />
-              <span>Saved Places</span>
-              {savedCount > 0 && (
-                <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 font-bold text-[11px] flex items-center justify-center">
-                  {savedCount}
-                </span>
-              )}
+              {lang === 'hi' ? 'बजट एवं व्यय' : 'Budget & Fuel'}
             </button>
 
             <button
-              onClick={() => setActiveTab('trips')}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center space-x-2 ${
-                activeTab === 'trips'
-                  ? 'bg-teal-500/15 text-teal-400 border border-teal-500/30 shadow-inner'
+              onClick={() => setActiveTab('checklists')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                activeTab === 'checklists'
+                  ? 'bg-teal-600/30 text-teal-300 border border-teal-500/40 shadow-sm'
                   : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
               }`}
             >
-              <Briefcase className="w-4 h-4" />
-              <span>My Trips</span>
+              {lang === 'hi' ? 'परमिट एवं पैकिंग' : 'Permits & Packing'}
             </button>
           </nav>
 
-          {/* Right Section: Live Crowd Status & User Profile */}
-          <div className="hidden md:flex items-center space-x-4">
-            
-            {/* Live Crowd Monitoring Pill */}
-            <div className="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 text-xs">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span className="font-semibold">AI Crowd Engine</span>
-              <span className="text-[10px] text-emerald-300/80">Active</span>
-            </div>
+          {/* Right Action Icons & Emergency Mode */}
+          <div className="hidden sm:flex items-center space-x-2.5">
+            {/* Language Toggle */}
+            <button
+              onClick={onToggleLang}
+              className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-teal-300 transition-colors flex items-center space-x-1"
+              title="Switch Language: English / हिन्दी"
+            >
+              <Languages className="w-4 h-4" />
+              <span>{lang === 'en' ? 'हिन्दी' : 'EN'}</span>
+            </button>
 
-            {/* Profile Avatar */}
-            <div className="flex items-center space-x-2 pl-2 border-l border-slate-800">
-              <button 
-                className="w-10 h-10 rounded-full border-2 border-teal-400/40 p-0.5 hover:border-teal-400 transition-all overflow-hidden"
-                title="Traveler Profile"
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={onToggleDarkMode}
+              className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition-colors"
+              title="Toggle Dark / Light Theme"
+            >
+              {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+            </button>
+
+            {/* Emergency Mode Button */}
+            <button
+              onClick={onOpenEmergencyMode}
+              className="px-3 py-2 rounded-xl bg-red-600/90 hover:bg-red-600 text-white text-xs font-black flex items-center space-x-1.5 shadow-md shadow-red-600/20 transition-all hover:scale-105"
+              title="One-click access to SOS numbers, nearest trauma centers, and offline checklists"
+            >
+              <ShieldAlert className="w-4 h-4 text-white animate-pulse" />
+              <span>SOS Emergency</span>
+            </button>
+
+            {/* Plan Trip CTA */}
+            <button
+              onClick={onOpenWizard}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-slate-950 font-black text-xs shadow-md shadow-teal-500/20 hover:scale-105 transition-all flex items-center space-x-1.5"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>{t.planNewTrip}</span>
+            </button>
+          </div>
+
+          {/* Mobile Menu Hamburger */}
+          <div className="flex md:hidden items-center space-x-2">
+            <button
+              onClick={onOpenEmergencyMode}
+              className="p-2 rounded-xl bg-red-600 text-white"
+              title="SOS Emergency Mode"
+            >
+              <ShieldAlert className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-xl bg-slate-800 text-slate-200"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
+
+        </div>
+
+        {/* Mobile Navigation Drawer */}
+        {mobileMenuOpen && (
+          <div className="md:hidden py-4 border-t border-slate-800 space-y-2 animate-in fade-in">
+            <button
+              onClick={() => { setActiveTab('explore'); setMobileMenuOpen(false); }}
+              className="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold text-slate-200 hover:bg-slate-800"
+            >
+              {lang === 'hi' ? '36 राज्य व केंद्र शासित प्रदेश' : 'Explore 36 States & UTs'}
+            </button>
+            <button
+              onClick={() => { setActiveTab('itinerary'); setMobileMenuOpen(false); }}
+              className="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold text-slate-200 hover:bg-slate-800"
+            >
+              {lang === 'hi' ? 'स्मार्ट यात्रा कार्यक्रम' : 'Smart Itinerary'}
+            </button>
+            <button
+              onClick={() => { setActiveTab('budget'); setMobileMenuOpen(false); }}
+              className="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold text-slate-200 hover:bg-slate-800"
+            >
+              {lang === 'hi' ? 'बजट एवं ईंधन' : 'Budget & Fuel'}
+            </button>
+            <button
+              onClick={() => { setActiveTab('checklists'); setMobileMenuOpen(false); }}
+              className="w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold text-slate-200 hover:bg-slate-800"
+            >
+              {lang === 'hi' ? 'परमिट एवं पैकिंग' : 'Permits & Packing'}
+            </button>
+
+            <div className="pt-2 flex items-center justify-between px-4">
+              <button
+                onClick={onToggleLang}
+                className="px-3 py-1.5 rounded-lg bg-slate-800 text-xs font-bold text-teal-300"
               >
-                <img
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80"
-                  alt="User Profile"
-                  className="w-full h-full object-cover rounded-full"
-                />
+                {lang === 'en' ? 'हिन्दी में बदलें' : 'Switch to English'}
+              </button>
+              <button
+                onClick={onOpenWizard}
+                className="px-4 py-2 rounded-xl bg-teal-500 text-slate-950 text-xs font-black"
+              >
+                {t.planNewTrip}
               </button>
             </div>
           </div>
+        )}
 
-          {/* Mobile Menu Button */}
-          <div className="flex md:hidden items-center space-x-3">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg bg-slate-800 text-slate-200 hover:text-white"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
-
-        </div>
       </div>
-
-      {/* Mobile Drawer */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-800 bg-[#0a192f] px-4 pt-3 pb-6 space-y-3">
-          <div className="mb-3">
-            <label className="text-xs font-semibold text-slate-400 block mb-1">Select Region</label>
-            <select
-              value={selectedCity}
-              onChange={(e) => {
-                onSelectCity(e.target.value);
-                setMobileMenuOpen(false);
-              }}
-              className="w-full bg-slate-800 text-white rounded-lg p-2 text-sm border border-slate-700"
-            >
-              {CITIES.map((c) => (
-                <option key={c.id} value={c.id}>{c.name} ({c.country})</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-1">
-            <button
-              onClick={() => { setActiveTab('explore'); setMobileMenuOpen(false); }}
-              className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium ${
-                activeTab === 'explore' ? 'bg-teal-500/20 text-teal-400' : 'text-slate-300'
-              }`}
-            >
-              Explore Destinations
-            </button>
-            <button
-              onClick={() => { setActiveTab('planner'); setMobileMenuOpen(false); }}
-              className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium flex justify-between ${
-                activeTab === 'planner' ? 'bg-teal-500/20 text-teal-400' : 'text-slate-300'
-              }`}
-            >
-              <span>Smart Trip Planner</span>
-              {itineraryCount > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-teal-500 text-slate-950 font-bold text-xs">
-                  {itineraryCount}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => { setActiveTab('saved'); setMobileMenuOpen(false); }}
-              className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium flex justify-between ${
-                activeTab === 'saved' ? 'bg-teal-500/20 text-teal-400' : 'text-slate-300'
-              }`}
-            >
-              <span>Saved Places</span>
-              {savedCount > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 font-bold text-xs">
-                  {savedCount}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => { setActiveTab('trips'); setMobileMenuOpen(false); }}
-              className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium ${
-                activeTab === 'trips' ? 'bg-teal-500/20 text-teal-400' : 'text-slate-300'
-              }`}
-            >
-              My Trips
-            </button>
-          </div>
-        </div>
-      )}
     </header>
   );
 };

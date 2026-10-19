@@ -63,6 +63,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
   const [showHeatmap, setShowHeatmap] = useState(true);
   const [showRoute, setShowRoute] = useState(true);
+  const [mapType, setMapType] = useState<'street' | 'satellite'>('street');
+  const tileLayerRef = useRef<L.TileLayer | null>(null);
 
   // Initialize Map
   useEffect(() => {
@@ -75,12 +77,14 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         zoomControl: false,
       });
 
-      // CartoDB Voyager tiles - sleek, modern, uncluttered travel map tiles
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      // Default CartoDB Voyager tiles
+      const tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
         subdomains: 'abcd',
         maxZoom: 19,
       }).addTo(map);
+
+      tileLayerRef.current = tileLayer;
 
       // Add Zoom Control at bottom right
       L.control.zoom({ position: 'bottomright' }).addTo(map);
@@ -91,11 +95,30 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     } else {
       mapInstanceRef.current.setView(cityCenter, zoom, { animate: true });
     }
-
-    return () => {
-      // map clean up on unmount
-    };
   }, [cityCenter, zoom]);
+
+  // Handle Map Type (Street vs Satellite)
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    if (tileLayerRef.current) {
+      map.removeLayer(tileLayerRef.current);
+    }
+
+    if (mapType === 'satellite') {
+      tileLayerRef.current = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+        maxZoom: 18,
+      }).addTo(map);
+    } else {
+      tileLayerRef.current = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19,
+      }).addTo(map);
+    }
+  }, [mapType]);
 
   // Update Markers and Heatmap Circles
   useEffect(() => {
@@ -233,8 +256,21 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           ))}
         </div>
 
-        {/* Heatmap & Route Toggles */}
+        {/* Heatmap, Route & Satellite Toggles */}
         <div className="pointer-events-auto flex items-center space-x-2 bg-white/95 backdrop-blur-md p-1.5 rounded-2xl shadow-lg border border-slate-200">
+          <button
+            onClick={() => setMapType(mapType === 'street' ? 'satellite' : 'street')}
+            className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all ${
+              mapType === 'satellite'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'text-slate-600 hover:bg-slate-100'
+            }`}
+            title="Toggle Satellite Imagery Layer"
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{mapType === 'satellite' ? 'Satellite' : 'Street'}</span>
+          </button>
+
           <button
             onClick={() => setShowHeatmap(!showHeatmap)}
             className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all ${
