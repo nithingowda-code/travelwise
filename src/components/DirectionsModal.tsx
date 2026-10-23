@@ -24,9 +24,10 @@ export const DirectionsModal: React.FC<DirectionsModalProps> = ({
   destination,
   onClose,
 }) => {
+  const [mode, setMode] = useState<'transit' | 'driving' | 'walking'>('transit');
+
   if (!destination) return null;
 
-  const [mode, setMode] = useState<'transit' | 'driving' | 'walking'>('transit');
   const crowdStyle = getCrowdStyle(destination.crowdLevel);
 
   // Dynamic calculated transit times
